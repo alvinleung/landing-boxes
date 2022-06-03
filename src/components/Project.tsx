@@ -87,6 +87,38 @@ const Project = ({ name }: Props) => {
     setPreferViewInfo(!preferViewInfo);
   };
 
+  useEffect(() => {
+    let tapHoldTimer = 0;
+    let pointerMoved = false;
+    function handleTouchStart() {
+      tapHoldTimer && clearTimeout(tapHoldTimer);
+      pointerMoved = false;
+
+      function showInfo() {
+        setPreferViewInfo(true);
+      }
+      setTimeout(() => {
+        !pointerMoved && showInfo();
+      }, 200);
+    }
+    function handleTouchEnd() {
+      tapHoldTimer && clearTimeout(tapHoldTimer);
+      setPreferViewInfo(false);
+    }
+    function handlePointerMove() {
+      pointerMoved = true;
+    }
+    window.addEventListener("pointerdown", handleTouchStart);
+    window.addEventListener("pointerup", handleTouchEnd);
+    window.addEventListener("pointermove", handlePointerMove);
+
+    return () => {
+      window.removeEventListener("pointerdown", handleTouchStart);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handleTouchEnd);
+    };
+  }, []);
+
   return (
     <motion.div ref={boundingRef} className="text-sm leading-none">
       <ProjectImage isActive={isActive} />
